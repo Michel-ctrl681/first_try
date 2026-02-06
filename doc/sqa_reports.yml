@@ -1,0 +1,6 @@
+Applications:
+    my_lbe_pool:
+        app_types:
+            - my_lbe_poolApp
+        content_directory: ${ROOT_DIR}/doc/content
+        log_default: WARNING

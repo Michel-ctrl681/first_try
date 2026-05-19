@@ -74,7 +74,7 @@ temp_ref= 353.15
   []
 []
 
-[BCs]
+[FVBCs]
   [./velocity_dirichlet]
     type = VectorDirichletBC
     boundary = 'left right bottom top'

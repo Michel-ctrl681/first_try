@@ -1,5 +1,5 @@
 #include "my_lbe_poolApp.h"
-#include "Moose.h"
+#include "MooseApp.h"
 #include "AppFactory.h"
 #include "ModulesApp.h"
 #include "MooseSyntax.h"
@@ -21,13 +21,12 @@ my_lbe_poolApp::my_lbe_poolApp(const InputParameters & parameters) : MooseApp(pa
 my_lbe_poolApp::~my_lbe_poolApp() {}
 
 void
-my_lbe_poolApp::registerAll(Factory & f, ActionFactory & af, Syntax & syntax)
+my_lbe_poolApp::registerAll(Factory & f, ActionFactory & af, Syntax & s)
 {
-  ModulesApp::registerAllObjects<my_lbe_poolApp>(f, af, syntax);
   Registry::registerObjectsTo(f, {"my_lbe_poolApp"});
   Registry::registerActionsTo(af, {"my_lbe_poolApp"});
 
-  /* register custom execute flags, action syntax, etc. here */
+  ModulesApp::registerAllObjects<my_lbe_poolApp>(f, af, s);
 }
 
 void

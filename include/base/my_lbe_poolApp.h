@@ -10,6 +10,7 @@
 #pragma once
 
 #include "MooseApp.h"
+#include "InputParameters.h"
 
 class my_lbe_poolApp : public MooseApp
 {

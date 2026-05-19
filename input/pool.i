@@ -4,7 +4,7 @@ k = 0.6
 cp = 4180
 alpha_b = 2.1e-4
 velocity_interp_method = 'rc'
-advected_interp_method = 'upwind'
+advected_interp_method = 'quick'
 T_cold = 333.15
 T_hot = 343.15
 T_ref = 338.15
@@ -29,8 +29,8 @@ T_ref = 338.15
     xmax = 1
     ymin = 0
     ymax = 1
-    nx = 128
-    ny = 128
+    nx = 512
+    ny = 512
 []
 
 [Variables]
@@ -164,7 +164,7 @@ T_ref = 338.15
   [T_advection]
     type = INSFVEnergyAdvection
     variable = T
-    advected_interp_method = vanLeer
+    advected_interp_method = ${advected_interp_method}
     velocity_interp_method = ${velocity_interp_method}
   []
 
@@ -233,7 +233,7 @@ T_ref = 338.15
   petsc_options_value = 'lu superlu_dist'
 
   start_time = 0
-  end_time = 50.0   # 足够长以确保达到稳态
+  end_time = 50.0
 
   nl_abs_tol = 1e-8
   nl_rel_tol = 1e-6
@@ -242,8 +242,12 @@ T_ref = 338.15
   [TimeStepper]
     type = IterationAdaptiveDT
     optimal_iterations = 6
-    growth_factor = 1.5
-    dt = 0.1
+    growth_factor = 1.2
+    dt = 0.05
+  []
+
+  [TimeIntegrator]
+    type = BDF2
   []
 []
 

@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/include",
+                "/home/zzj/projects/moose/framework/include",
+                "/home/zzj/projects/moose/libmesh/installed/include",
+                "/home/zzj/projects/moose/modules/navier_stokes/include",
+                "/home/zzj/projects/moose/modules/heat_transfer/include"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/g++",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-gcc-x64",
+            "compileCommands": ""
+        }
+    ],
+    "version": 4
+}

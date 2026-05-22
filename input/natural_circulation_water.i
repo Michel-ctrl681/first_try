@@ -16,7 +16,7 @@ T_ref = 353.15     # 参考温度 [K] (80°C)
 gravity = 9.81     # 重力加速度 [m/s²]
 
 velocity_interp_method = 'rc'
-advected_interp_method = 'upwind'
+advected_interp_method = 'quick'
 
 [GlobalParams]
   rhie_chow_user_object = 'rc'
@@ -50,12 +50,21 @@ advected_interp_method = 'upwind'
   []
 []
 
+[Functions]
+  [T_ic]
+    type = ParsedFunction
+    expression = '${T_hot} + (${T_cold} - ${T_hot}) * x'
+  []
+[]
+
 [Variables]
   [vel_x]
     type = INSFVVelocityVariable
+    scaling = 1e3
   []
   [vel_y]
     type = INSFVVelocityVariable
+    scaling = 1e3
   []
   [pressure]
     type = INSFVPressureVariable
@@ -67,6 +76,14 @@ advected_interp_method = 'upwind'
   [lambda]
     family = SCALAR
     order = FIRST
+  []
+[]
+
+[ICs]
+  [T_ic]
+    type = FunctionIC
+    variable = T
+    function = T_ic
   []
 []
 
@@ -86,6 +103,12 @@ advected_interp_method = 'upwind'
   []
 
   # ===== X方向动量方程 =====
+  [u_time]
+    type = INSFVMomentumTimeDerivative
+    variable = vel_x
+    rho = ${rho}
+    momentum_component = 'x'
+  []
   [u_advection]
     type = INSFVMomentumAdvection
     variable = vel_x
@@ -108,6 +131,12 @@ advected_interp_method = 'upwind'
   []
 
   # ===== Y方向动量方程 =====
+  [v_time]
+    type = INSFVMomentumTimeDerivative
+    variable = vel_y
+    rho = ${rho}
+    momentum_component = 'y'
+  []
   [v_advection]
     type = INSFVMomentumAdvection
     variable = vel_y
@@ -164,6 +193,11 @@ advected_interp_method = 'upwind'
   []
 
   # ===== 能量方程 =====
+  [T_time]
+    type = INSFVEnergyTimeDerivative
+    variable = T
+    rho = ${rho}
+  []
   [T_advection]
     type = INSFVEnergyAdvection
     variable = T
@@ -213,23 +247,42 @@ advected_interp_method = 'upwind'
     prop_names = 'mu rho k cp alpha_b'
     prop_values = '${mu} ${rho} ${k} ${cp} ${alpha_b}'
   []
+  [ins_fv]
+    type = INSFVEnthalpyFunctorMaterial
+    rho = ${rho}
+    temperature = 'T'
+  []
 []
 
 [Executioner]
-  type = Steady
+  type = Transient
   solve_type = 'NEWTON'
   petsc_options_iname = '-pc_type -pc_factor_mat_solver_package'
   petsc_options_value = 'lu superlu_dist'
 
-  nl_abs_tol = 1e-8
-  nl_rel_tol = 1e-6
+  nl_abs_tol = 1e-4
+  nl_rel_tol = 1e-2
   nl_max_its = 50
+
+  # 伪瞬态: 小dt提供数值阻尼, dt逐步增大直到稳态
+  dt = 1e-4
+  dtmax = 1e4
+  end_time = 1e6
+  steady_state_detection = true
+  steady_state_tolerance = 1e-4
+
+  [TimeStepper]
+    type = IterationAdaptiveDT
+    optimal_iterations = 6
+    growth_factor = 2.0
+    dt = 1e-4
+  []
 []
 
 [Outputs]
   [exodus]
     type = Exodus
-    execute_on = 'FINAL'
+    execute_on = 'INITIAL TIMESTEP_END'
   []
 []
 

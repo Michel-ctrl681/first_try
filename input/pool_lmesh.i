@@ -29,8 +29,8 @@ T_ref = 338.15
   xmax = 1
   ymin = 0
   ymax = 1
-  nx = 256
-  ny = 256
+  nx = 128
+  ny = 128
 []
 
 [Variables]

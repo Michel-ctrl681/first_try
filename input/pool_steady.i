@@ -4,7 +4,7 @@ k = 0.6
 cp = 4180
 alpha_b = 2.1e-4
 velocity_interp_method = 'rc'
-advected_interp_method = 'quick'
+advected_interp_method = 'average'
 T_cold = 333.15
 T_hot = 343.15
 T_ref = 338.15
@@ -29,8 +29,8 @@ T_ref = 338.15
   xmax = 1
   ymin = 0
   ymax = 1
-  nx = 256
-  ny = 256
+  nx = 128
+  ny = 128
 []
 
 [Variables]
@@ -67,12 +67,6 @@ T_ref = 338.15
     lambda = lambda
   []
 
-  [u_time]
-    type = INSFVMomentumTimeDerivative
-    variable = vel_x
-    rho = ${rho}
-    momentum_component = 'x'
-  []
   [u_advection]
     type = INSFVMomentumAdvection
     variable = vel_x
@@ -110,12 +104,6 @@ T_ref = 338.15
     momentum_component = 'x'
   []
 
-  [v_time]
-    type = INSFVMomentumTimeDerivative
-    variable = vel_y
-    rho = ${rho}
-    momentum_component = 'y'
-  []
   [v_advection]
     type = INSFVMomentumAdvection
     variable = vel_y
@@ -151,13 +139,6 @@ T_ref = 338.15
     gravity = '0 -9.81 0'
     rho = '${rho}'
     momentum_component = 'y'
-  []
-
-  # 能量方程瞬态项：ρ*cp * ∂T/∂t
-  [T_time]
-    type = INSFVEnergyTimeDerivative
-    variable = T
-    rho = ${rho}
   []
 
   # 能量方程对流项：ρ*cp * (u·∇)T
@@ -232,18 +213,22 @@ T_ref = 338.15
   petsc_options_iname = '-pc_type -pc_factor_mat_solver_package'
   petsc_options_value = 'lu superlu_dist'
 
-  end_time = 200
-  dtmax = 2.0
+  nl_abs_tol = 1e-4
+  nl_rel_tol = 1e-2
+  nl_max_its = 50
 
-  nl_abs_tol = 1e-8
-  nl_rel_tol = 1e-6
-  nl_max_its = 20
+  # 伪瞬态: 小dt提供数值阻尼, dt逐步增大直到稳态
+  dt = 1e-4
+  dtmax = 1e4
+  end_time = 1e6
+  steady_state_detection = true
+  steady_state_tolerance = 1e-4
 
   [TimeStepper]
     type = IterationAdaptiveDT
-    optimal_iterations = 8
-    growth_factor = 1.2
-    dt = 0.01
+    optimal_iterations = 6
+    growth_factor = 2.0
+    dt = 1e-4
   []
 
   [TimeIntegrator]
@@ -251,10 +236,13 @@ T_ref = 338.15
   []
 []
 
-[Debug]
-  show_var_residual_norms = true
+[Outputs]
+  [exodus]
+    type = Exodus
+    execute_on = 'INITIAL TIMESTEP_END'
+  []
 []
 
-[Outputs]
-  exodus = true
+[Debug]
+  show_var_residual_norms = true
 []
